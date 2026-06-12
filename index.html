@@ -1,16 +1,22 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+<!doctype html>
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>設計師接需求生存術｜職人互動生存指南</title>
-  <meta name="description" content="設計師接案流程互動指南，涵蓋需求訪談、改稿管理、報價與合作確認。">
-  <meta name="keywords" content="設計師,接案,需求訪談,改稿,報價,合作流程">
+  <meta name="description" content="設計師接案流程互動指南，涵蓋需求訪談、改稿管理、風格收斂與合作確認。把模糊期待變成清楚合作，讓設計從邊界開始。">
+  <meta name="keywords" content="設計師,接案,需求訪談,改稿,報價,合作流程,接案生存術,設計師生存指南">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="設計師接需求生存術｜職人互動生存指南">
-  <meta property="og:description" content="設計師接案流程互動指南，涵蓋需求訪談、改稿管理、報價與合作確認。">
+  <meta property="og:description" content="設計師接案流程互動指南，涵蓋需求訪談、改稿管理、風格收斂與合作確認。">
   <meta property="og:type" content="website">
   <meta property="og:image" content="og-cover.png">
+  <link rel="canonical" href="https://example.com/designer-survival-guide">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Chivo+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
   <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PJY4P4B63K"></script>
@@ -22,1120 +28,1909 @@
   </script>
 
   <style>
+    /* ─── Design Tokens ─── */
     :root {
-      --bg: #0d0d0d;
-      --bg2: #141414;
-      --card: #1a1a1a;
-      --border: #2a2a2a;
-      --text: #f0f0f0;
-      --muted: #666;
-      --accent: #b8f53c;
-      --accent-dim: rgba(184,245,60,0.12);
-      --accent-border: rgba(184,245,60,0.3);
-      --red: #ff4d4d;
-      --radius: 16px;
-      --radius-sm: 10px;
+      --bg: #080908;
+      --bg2: #10120f;
+      --green: #b8f53c;
+      --green-hi: #dcff72;
+      --white: #ffffff;
+      --near-white: #d7d7d0;
+      --muted: #8d9388;
+      --border: rgba(184,245,60,.18);
+      --border-dim: rgba(255,255,255,.08);
+      --grid-sm: 48px;
+      --grid-lg: 192px;
+      --font-display: 'Archivo Black', 'Noto Sans TC', sans-serif;
+      --font-body: 'Noto Sans TC', sans-serif;
+      --font-mono: 'Chivo Mono', monospace;
+      --blue: #3156e8;
+      --red: #e64f36;
+      --teal: #67c08f;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-behavior: smooth; }
-
-    body {
+    html {
+      scroll-behavior: smooth;
       background: var(--bg);
-      color: var(--text);
-      font-family: 'Helvetica Neue', 'Hiragino Sans', 'PingFang TC', Arial, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
     }
 
-    /* Grid background */
-    body::before {
+    body {
+      font-family: var(--font-body);
+      color: var(--white);
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(184,245,60,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(184,245,60,.04) 1px, transparent 1px),
+        linear-gradient(rgba(184,245,60,.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(184,245,60,.015) 1px, transparent 1px);
+      background-size:
+        var(--grid-lg) var(--grid-lg),
+        var(--grid-lg) var(--grid-lg),
+        var(--grid-sm) var(--grid-sm),
+        var(--grid-sm) var(--grid-sm);
+      overflow-x: hidden;
+    }
+
+    /* Scan line overlay */
+    body::after {
       content: '';
       position: fixed;
       inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 48px 48px;
       pointer-events: none;
-      z-index: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.06) 2px,
+        rgba(0,0,0,.06) 4px
+      );
+      z-index: 100;
     }
 
-    /* ── SLIDES ── */
-    #slides {
-      position: relative;
-      z-index: 1;
-      height: 100vh;
-      overflow: hidden;
+    /* Mouse glow */
+    #mouse-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,245,60,.04) 0%, transparent 70%);
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity .4s;
+    }
+
+    /* ─── Slide System ─── */
+    .deck {
+      overflow-x: hidden;
     }
 
     .slide {
-      position: absolute;
-      inset: 0;
+      min-height: 100vh;
+      position: relative;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      padding: clamp(24px, 5vw, 80px);
-      opacity: 0;
-      transform: translateX(60px);
-      transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
-      pointer-events: none;
-      overflow-y: auto;
+      padding: clamp(48px,6vw,96px) clamp(24px,6vw,80px);
+      overflow: hidden;
     }
 
-    .slide.active {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: all;
+    .slide-inner {
+      width: min(1200px,100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
     }
 
-    .slide.exit {
-      opacity: 0;
-      transform: translateX(-60px);
-    }
-
-    /* ── NAV ── */
-    #nav {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: rgba(20,20,20,0.9);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      padding: 12px 24px;
-      backdrop-filter: blur(12px);
-    }
-
-    #nav button {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    #nav button:hover { border-color: var(--accent); color: var(--accent); }
-
-    #slide-counter {
-      font-size: 13px;
+    /* Page number */
+    .pg {
+      font-family: var(--font-mono);
+      font-size: clamp(11px,1vw,14px);
       color: var(--muted);
-      min-width: 48px;
-      text-align: center;
-      letter-spacing: 0.05em;
+      letter-spacing: .1em;
+      margin-bottom: clamp(16px,2vw,28px);
     }
 
-    .dot-nav {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--border);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .dot.active { background: var(--accent); width: 18px; border-radius: 3px; }
-
-    /* ── TYPOGRAPHY ── */
-    .label {
-      font-size: 11px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    .label.accent { color: var(--accent); }
-
-    h1.hero-title {
-      font-size: clamp(3rem, 9vw, 7rem);
-      font-weight: 900;
-      line-height: 1.0;
-      letter-spacing: -0.03em;
-      text-align: center;
-    }
-
-    h2.slide-title {
-      font-size: clamp(2rem, 6vw, 4.5rem);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      text-align: center;
-    }
-
-    .highlight { color: var(--accent); }
-
-    .subtitle {
-      font-size: clamp(1rem, 2.5vw, 1.4rem);
-      color: var(--muted);
-      text-align: center;
-      margin-top: 20px;
-      max-width: 600px;
-      line-height: 1.6;
-    }
-
-    /* ── CARDS ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: clamp(20px, 3vw, 32px);
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      width: 100%;
-      max-width: 900px;
-    }
-
-    .step-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .step-num {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--accent);
-    }
-
-    .step-title { font-size: 1.1rem; font-weight: 700; }
-    .step-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.55; }
-
-    /* ── SLIDE 1: HERO ── */
-    #slide-1 .badge {
-      background: var(--accent-dim);
-      border: 1px solid var(--accent-border);
-      color: var(--accent);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 6px 16px;
-      border-radius: 50px;
-      margin-bottom: 32px;
-    }
-
-    #slide-1 .meta {
-      margin-top: 28px;
-      display: flex;
-      gap: 32px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    #slide-1 .meta span { display: flex; align-items: center; gap: 6px; }
-
-    /* ── SLIDE 2: EXPLOSION ── */
-    .big-quote {
-      font-size: clamp(1.6rem, 4.5vw, 3rem);
-      font-weight: 800;
-      line-height: 1.2;
-      text-align: center;
-      max-width: 800px;
-      letter-spacing: -0.02em;
-    }
-
-    .quote-bar {
-      width: 60px;
-      height: 4px;
-      background: var(--accent);
-      border-radius: 2px;
-      margin: 24px auto;
-    }
-
-    .explosion-tag {
+    /* Kicker */
+    .kicker {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(255,77,77,0.1);
-      border: 1px solid rgba(255,77,77,0.3);
-      color: #ff4d4d;
-      font-size: 12px;
-      padding: 6px 14px;
-      border-radius: 50px;
-      margin-bottom: 28px;
-      letter-spacing: 0.08em;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: clamp(11px,1.1vw,14px);
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: clamp(16px,2vw,24px);
     }
 
-    /* ── CHECKLIST ── */
-    .checklist-wrap {
-      width: 100%;
+    .kicker::before {
+      content: '';
+      width: 28px;
+      height: 2px;
+      background: var(--green);
+      display: block;
+    }
+
+    /* Headlines */
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.2rem,7vw,6.5rem);
+      line-height: 1.05;
+      color: var(--white);
+      letter-spacing: -.01em;
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem,5.5vw,5rem);
+      line-height: 1.06;
+      color: var(--white);
+      letter-spacing: -.01em;
+    }
+
+    .lead {
+      font-size: clamp(1.25rem,2vw,1.8rem);
+      line-height: 1.55;
+      color: var(--near-white);
+      margin-top: clamp(16px,2vw,28px);
       max-width: 680px;
     }
 
-    .checklist-header {
-      display: flex;
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
+      gap: 8px;
+      padding: 12px 28px;
+      border: 1px solid var(--green);
+      border-radius: 3px;
+      background: transparent;
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: clamp(13px,1.2vw,16px);
+      font-weight: 700;
+      letter-spacing: .05em;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .15s, box-shadow .15s;
     }
 
-    .progress-text {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
+    .btn:hover, .btn:focus-visible {
+      background: var(--green);
+      color: var(--bg);
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(184,245,60,.3);
+      outline: none;
+    }
+
+    .btn:active { transform: scale(.98); }
+
+    .btn-solid {
+      background: var(--green);
+      color: var(--bg);
+    }
+
+    .btn-solid:hover, .btn-solid:focus-visible {
+      background: var(--green-hi);
+      color: var(--bg);
+    }
+
+    /* ─── Slide 1 — Opening ─── */
+    #opening {
+      background: var(--bg);
+      min-height: 100vh;
+      justify-content: flex-end;
+      padding-bottom: clamp(60px,8vw,120px);
+    }
+
+    .opening-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: clamp(24px,3vw,40px) clamp(24px,6vw,80px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-dim);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .08em;
+      z-index: 3;
+    }
+
+    .hero-label { text-transform: uppercase; }
+
+    .opening-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .opening-num {
+      font-family: var(--font-display);
+      font-size: clamp(22vw,25vw,340px);
+      line-height: .85;
+      color: rgba(255,255,255,.025);
+      position: absolute;
+      right: -2vw;
+      bottom: -4vw;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    /* Marquee */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border-dim);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 10px 0;
+      margin-top: clamp(32px,4vw,56px);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      animation: marquee 18s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-track span {
+      font-family: var(--font-mono);
+      font-size: clamp(11px,1vw,14px);
+      color: var(--muted);
+      letter-spacing: .12em;
+      padding: 0 clamp(16px,2vw,28px);
+      text-transform: uppercase;
+    }
+
+    .marquee-track span.accent {
+      color: var(--green);
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ─── Slide 2 — Blast Tabs ─── */
+    #blast .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px,4vw,60px);
+      align-items: start;
+      margin-top: clamp(24px,3vw,40px);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border-dim);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-right: 1px solid var(--border-dim);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: clamp(13px,1.2vw,15px);
+      font-weight: 700;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+
+    .tab-btn:last-child { border-right: none; }
+
+    .tab-btn[aria-selected="true"] {
+      background: var(--green);
+      color: var(--bg);
+    }
+
+    .tab-btn:hover:not([aria-selected="true"]) {
+      background: rgba(184,245,60,.08);
+      color: var(--near-white);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
+
+    .scenario-box {
+      border: 1px solid var(--border-dim);
+      border-radius: 4px;
+      padding: clamp(20px,2.5vw,32px);
+      font-size: clamp(1.1rem,1.8vw,1.5rem);
+      line-height: 1.6;
+      color: var(--near-white);
+      background: rgba(255,255,255,.03);
+      animation: fadeIn .25s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scenario-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--green);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* ─── Slide 3 — Target Zone ─── */
+    #fog .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px,4vw,60px);
+      align-items: center;
+      margin-top: clamp(24px,3vw,40px);
+    }
+
+    #targetZone {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: clamp(280px,35vw,440px);
+      border: 1px solid var(--border-dim);
+      border-radius: 4px;
+      background: rgba(255,255,255,.02);
+      cursor: crosshair;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    #targetZone:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+
+    .target-hint {
+      font-family: var(--font-mono);
+      font-size: clamp(10px,1vw,13px);
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-top: 18px;
+      transition: opacity .3s;
+    }
+
+    /* Bullseye rings */
+    .bullseye {
+      position: relative;
+      width: clamp(160px,20vw,240px);
+      height: clamp(160px,20vw,240px);
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid rgba(184,245,60,.35);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+    }
+
+    .ring:nth-child(1) { width: 100%; height: 100%; }
+    .ring:nth-child(2) { width: 70%; height: 70%; border-color: rgba(184,245,60,.5); }
+    .ring:nth-child(3) { width: 42%; height: 42%; border-color: rgba(184,245,60,.7); }
+    .ring:nth-child(4) { width: 16%; height: 16%; background: var(--green); border: none; border-radius: 50%; }
+
+    /* Dart */
+    .dart {
+      position: absolute;
+      font-size: 28px;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 10;
+      transition: none;
+    }
+
+    .dart.flying {
+      transition: left .45s cubic-bezier(.22,.68,0,1.2), top .45s cubic-bezier(.22,.68,0,1.2), opacity .15s;
+      opacity: 1;
+    }
+
+    .locked-label {
+      position: absolute;
+      bottom: 18px;
+      font-family: var(--font-mono);
+      font-size: clamp(11px,1vw,13px);
+      color: var(--green);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    /* ─── Slide 4 — Style Picker ─── */
+    .picker-group {
+      margin-top: 20px;
+    }
+
+    .picker-group-label {
+      font-family: var(--font-mono);
+      font-size: clamp(10px,.9vw,13px);
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      position: relative;
+    }
+
+    .chip input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip label {
+      display: inline-block;
+      padding: 8px 16px;
+      border: 1px solid var(--border-dim);
+      border-radius: 2px;
+      font-size: clamp(13px,1.1vw,15px);
+      color: var(--near-white);
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      font-family: var(--font-body);
+      font-weight: 500;
+    }
+
+    .chip input:checked + label {
+      background: var(--green);
+      color: var(--bg);
+      border-color: var(--green);
+      font-weight: 700;
+    }
+
+    .chip label:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .chip input:focus-visible + label {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    .picker-actions {
+      margin-top: 24px;
+    }
+
+    /* ─── Slide 5 — Checklist ─── */
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 20px;
+      border: 1px solid var(--border-dim);
+      border-radius: 4px;
+      background: rgba(255,255,255,.02);
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+
+    .check-item:hover { border-color: rgba(184,245,60,.35); background: rgba(184,245,60,.04); }
+
+    .check-item input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border: 1.5px solid var(--muted);
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      margin-top: 2px;
+      transition: border-color .2s, background .2s;
+    }
+
+    .check-item input:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .check-item input:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 6px;
+      height: 11px;
+      border: solid var(--bg);
+      border-width: 0 2px 2px 0;
+      transform: rotate(42deg);
+    }
+
+    .check-item input:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    .check-label {
+      font-size: clamp(1rem,1.5vw,1.25rem);
+      line-height: 1.5;
+      color: var(--near-white);
+    }
+
+    .check-item.is-checked .check-label {
+      color: var(--green);
     }
 
     .progress-bar-wrap {
-      height: 4px;
-      background: var(--border);
+      margin-top: 28px;
+      border: 1px solid var(--border-dim);
       border-radius: 2px;
-      margin-bottom: 20px;
+      height: 4px;
       overflow: hidden;
     }
 
     .progress-bar {
       height: 100%;
-      background: var(--accent);
-      border-radius: 2px;
-      transition: width 0.4s cubic-bezier(.4,0,.2,1);
+      background: var(--green);
       width: 0%;
+      transition: width .4s ease;
+      box-shadow: 0 0 12px rgba(184,245,60,.6);
     }
 
-    .check-item {
+    .progress-text {
+      font-family: var(--font-mono);
+      font-size: clamp(13px,1.1vw,16px);
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .progress-text span {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .checklist-actions {
+      margin-top: 24px;
+    }
+
+    /* ─── Slide 6 — Opening Script ─── */
+    #opening-script .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(24px,3vw,48px);
+      align-items: start;
+      margin-top: 28px;
+    }
+
+    .client-check-item {
       display: flex;
-      align-items: center;
-      gap: 14px;
+      align-items: flex-start;
+      gap: 12px;
       padding: 14px 16px;
-      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-dim);
+      border-radius: 3px;
       cursor: pointer;
-      transition: background 0.15s;
-      border: 1px solid transparent;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,.02);
+      transition: border-color .2s, background .2s;
     }
 
-    .check-item:hover { background: rgba(255,255,255,0.04); }
-    .check-item.checked { border-color: var(--accent-border); background: var(--accent-dim); }
+    .client-check-item:hover { border-color: rgba(184,245,60,.35); }
 
-    .check-box {
-      width: 22px;
-      height: 22px;
-      border: 2px solid var(--border);
-      border-radius: 6px;
-      flex-shrink: 0;
+    .client-check-item input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border: 1.5px solid var(--muted);
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      margin-top: 3px;
+      transition: border-color .2s, background .2s;
+    }
+
+    .client-check-item input:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .client-check-item input:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px; top: 1px;
+      width: 6px; height: 10px;
+      border: solid var(--bg);
+      border-width: 0 2px 2px 0;
+      transform: rotate(42deg);
+    }
+
+    .client-check-item input:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    .client-check-label {
+      font-size: clamp(.95rem,1.3vw,1.1rem);
+      color: var(--near-white);
+      line-height: 1.5;
+    }
+
+    .script-panel {
+      border: 1px solid var(--border-dim);
+      border-radius: 4px;
+      padding: clamp(20px,2.5vw,28px);
+      background: rgba(255,255,255,.02);
+    }
+
+    .script-panel-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--green);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    #openingText {
+      font-size: clamp(1rem,1.4vw,1.2rem);
+      line-height: 1.65;
+      color: var(--muted);
+      min-height: 80px;
+    }
+
+    #openingText.has-content { color: var(--near-white); }
+
+    .script-copy-btn {
+      margin-top: 16px;
+    }
+
+    /* ─── Slide 7 — Revision Risk ─── */
+    #revision-risk .orbit-wrap {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      min-height: clamp(260px,30vw,380px);
+      margin-top: 32px;
     }
 
-    .check-item.checked .check-box {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #0d0d0d;
-    }
-
-    .check-label { font-size: 0.95rem; line-height: 1.4; }
-
-    /* ── SCRIPT BOX ── */
-    .script-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 32px;
-      max-width: 700px;
-      width: 100%;
+    .revision-orbit {
       position: relative;
+      width: clamp(260px,35vw,420px);
+      height: clamp(260px,35vw,420px);
     }
 
-    .script-text {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      line-height: 1.7;
-      color: var(--text);
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px dashed rgba(184,245,60,.2);
     }
 
-    .copy-btn {
-      margin-top: 20px;
-      display: inline-flex;
+    .orbit-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: clamp(70px,9vw,100px);
+      height: clamp(70px,9vw,100px);
+      border-radius: 50%;
+      background: var(--green);
+      display: flex;
       align-items: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #0d0d0d;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.04em;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: clamp(13px,1.5vw,18px);
+      color: var(--bg);
+      letter-spacing: .05em;
+      z-index: 2;
+      box-shadow: 0 0 30px rgba(184,245,60,.4);
     }
 
-    .copy-btn:hover { background: #d4ff55; }
-    .copy-btn.copied { background: #4CAF50; color: #fff; }
-
-    /* ── FLOW CHART ── */
-    .flow {
+    .orbit-node {
+      position: absolute;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0;
-      max-width: 400px;
-      width: 100%;
+      gap: 8px;
+      z-index: 3;
     }
 
-    .flow-node {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 16px 32px;
-      font-size: 1rem;
-      font-weight: 600;
+    .orbit-icon {
+      width: clamp(44px,5vw,60px);
+      height: clamp(44px,5vw,60px);
+      border-radius: 50%;
+      border: 1.5px solid rgba(184,245,60,.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(184,245,60,.06);
+      transition: border-color .25s, background .25s;
+    }
+
+    .orbit-node:hover .orbit-icon,
+    .orbit-node:focus-visible .orbit-icon {
+      border-color: var(--green);
+      background: rgba(184,245,60,.15);
+    }
+
+    .orbit-node svg {
+      width: 22px; height: 22px;
+      stroke: var(--green);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .orbit-node-label {
+      font-family: var(--font-mono);
+      font-size: clamp(10px,.9vw,12px);
+      color: var(--near-white);
       text-align: center;
-      width: 100%;
-      transition: border-color 0.2s;
+      letter-spacing: .04em;
+      line-height: 1.3;
+      max-width: 90px;
     }
 
-    .flow-node.accent-node {
-      border-color: var(--accent-border);
-      color: var(--accent);
-      background: var(--accent-dim);
+    /* node positions: top, bottom-left, bottom-right */
+    .orbit-node:nth-child(2) { top: -12%; left: 50%; transform: translateX(-50%); }
+    .orbit-node:nth-child(3) { bottom: -12%; left: 10%; }
+    .orbit-node:nth-child(4) { bottom: -12%; right: 10%; }
+
+    /* connector lines */
+    .orbit-connector {
+      position: absolute;
+      width: 1px;
+      background: rgba(184,245,60,.15);
+      top: 50%; left: 50%;
+      transform-origin: top center;
+      z-index: 1;
+    }
+
+    /* ─── Slide 8 — Flow ─── */
+    #flow .flow-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: clamp(28px,3vw,48px);
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      min-width: clamp(100px,14vw,180px);
+      cursor: default;
+      transition: transform .2s;
+    }
+
+    .flow-step:hover { transform: translateY(-4px); }
+
+    .flow-circle {
+      width: clamp(52px,6vw,76px);
+      height: clamp(52px,6vw,76px);
+      border-radius: 50%;
+      border: 1.5px solid rgba(184,245,60,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: clamp(20px,2.5vw,32px);
+      color: var(--green);
+      background: rgba(184,245,60,.05);
+      transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+
+    .flow-step:hover .flow-circle {
+      border-color: var(--green);
+      background: rgba(184,245,60,.1);
+      box-shadow: 0 0 20px rgba(184,245,60,.25);
+    }
+
+    .flow-step-label {
+      font-family: var(--font-mono);
+      font-size: clamp(12px,1.1vw,15px);
+      color: var(--near-white);
+      letter-spacing: .05em;
+      text-align: center;
     }
 
     .flow-arrow {
-      color: var(--muted);
-      font-size: 1.2rem;
-      padding: 4px 0;
-      line-height: 1;
+      color: rgba(184,245,60,.3);
+      font-size: clamp(20px,2vw,28px);
+      padding: 0 clamp(4px,1vw,12px);
+      flex-shrink: 0;
     }
 
-    /* ── FORM ── */
-    .form-wrap {
-      width: 100%;
-      max-width: 640px;
-    }
-
-    .form-grid {
+    /* ─── Slide 9 — Revision Rules ─── */
+    #revision-rules .rules-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(2,1fr);
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .rule-card {
+      padding: clamp(20px,2.5vw,32px);
+      border: 1px solid var(--border-dim);
+      border-radius: 4px;
+      background: rgba(255,255,255,.02);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .rule-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.4);
+    }
+
+    .rule-num {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem,4vw,4rem);
+      line-height: 1;
       margin-bottom: 12px;
     }
 
-    .form-field {
+    .rule-title {
+      font-family: var(--font-body);
+      font-size: clamp(1.1rem,1.6vw,1.5rem);
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .rule-body {
+      font-size: clamp(.95rem,1.3vw,1.15rem);
+      line-height: 1.6;
+      color: var(--near-white);
+    }
+
+    /* ─── Slide 10 — Confirmation ─── */
+    #confirmation .form-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(16px,2vw,24px);
+      margin-top: 28px;
+    }
+
+    .field {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .form-field.full { grid-column: 1 / -1; }
+    .field.full { grid-column: 1 / -1; }
 
-    .form-field label {
-      font-size: 11px;
-      letter-spacing: 0.1em;
+    .field label {
+      font-family: var(--font-mono);
+      font-size: clamp(11px,.9vw,13px);
       color: var(--muted);
+      letter-spacing: .1em;
       text-transform: uppercase;
     }
 
-    .form-field input,
-    .form-field textarea,
-    .form-field select {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text);
-      padding: 10px 14px;
-      font-size: 0.9rem;
-      font-family: inherit;
+    .field input,
+    .field textarea {
+      padding: 12px 14px;
+      border: 1px solid var(--border-dim);
+      border-radius: 3px;
+      background: rgba(255,255,255,.04);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: clamp(14px,1.2vw,16px);
       outline: none;
-      transition: border-color 0.2s;
-      width: 100%;
+      transition: border-color .2s, box-shadow .2s;
     }
 
-    .form-field input:focus,
-    .form-field textarea:focus,
-    .form-field select:focus { border-color: var(--accent); }
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px rgba(184,245,60,.15);
+    }
 
-    .form-field textarea { resize: vertical; min-height: 72px; }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .form-checks {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
 
     .form-check {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 8px;
       cursor: pointer;
-      font-size: 0.9rem;
     }
 
-    .form-check input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+    .form-check input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--muted);
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      transition: border-color .2s, background .2s;
+    }
 
-    .submit-btn {
+    .form-check input:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .form-check input:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px; top: 1px;
+      width: 6px; height: 10px;
+      border: solid var(--bg);
+      border-width: 0 2px 2px 0;
+      transform: rotate(42deg);
+    }
+
+    .form-check input:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    .form-check span {
+      font-size: clamp(14px,1.2vw,16px);
+      color: var(--near-white);
+    }
+
+    .form-submit {
+      grid-column: 1 / -1;
+      margin-top: 8px;
+    }
+
+    /* ─── Modal ─── */
+    dialog {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #0e110d;
+      color: var(--white);
+      max-width: min(580px, 92vw);
       width: 100%;
-      background: var(--accent);
-      color: #0d0d0d;
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 12px;
-      letter-spacing: 0.04em;
-      transition: background 0.2s;
+      padding: clamp(28px,4vw,48px);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      max-height: 85vh;
+      overflow-y: auto;
     }
 
-    .submit-btn:hover { background: #d4ff55; }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+    dialog::backdrop {
+      background: rgba(0,0,0,.75);
       backdrop-filter: blur(4px);
     }
 
-    .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: clamp(24px, 4vw, 48px);
-      max-width: 560px;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      position: relative;
+    dialog[open] {
+      animation: dialogOpen .28s ease both;
     }
 
-    .modal-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-bottom: 20px;
+    @keyframes dialogOpen {
+      from { opacity: 0; transform: translate(-50%, calc(-50% + 16px)) scale(.97); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .dialog-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-
-    .modal-title .dot-accent {
-      width: 10px;
-      height: 10px;
-      background: var(--accent);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .modal-section { margin-bottom: 20px; }
-
-    .modal-section h4 {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .modal-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      margin: 3px;
-    }
-
-    .modal-tag.done { border-color: var(--accent-border); color: var(--accent); }
-    .modal-tag.todo { border-color: rgba(255,77,77,0.3); color: #ff8080; }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .modal-close:hover { color: var(--text); border-color: var(--text); }
-
-    .clarity-score {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
-    .clarity-label { font-size: 0.9rem; color: var(--muted); }
-
-    .next-step {
-      background: var(--accent-dim);
-      border: 1px solid var(--accent-border);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    /* ── SUMMARY CLOSE ── */
-    .summary-row {
-      display: flex;
       justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.9rem;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-dim);
     }
 
-    .summary-row:last-child { border-bottom: none; }
-    .summary-key { color: var(--muted); }
-    .summary-val { font-weight: 600; max-width: 60%; text-align: right; }
-
-    /* ── FINAL SLIDE ── */
-    .final-line {
-      font-size: clamp(1.8rem, 5vw, 3.5rem);
-      font-weight: 900;
-      line-height: 1.15;
-      text-align: center;
-      letter-spacing: -0.02em;
+    .dialog-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem,2vw,1.6rem);
+      color: var(--white);
     }
 
-    .final-divider {
-      font-size: clamp(1rem, 2vw, 1.5rem);
+    .dialog-close {
+      background: none;
+      border: 1px solid var(--border-dim);
+      border-radius: 3px;
       color: var(--muted);
-      margin: 16px 0;
-      text-align: center;
-    }
-
-    /* ── GEN REPORT BTN ── */
-    .gen-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #0d0d0d;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: 800;
+      font-size: 18px;
       cursor: pointer;
-      margin-top: 16px;
-      transition: background 0.2s;
-      letter-spacing: 0.04em;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s;
     }
 
-    .gen-btn:hover { background: #d4ff55; }
+    .dialog-close:hover { border-color: var(--green); color: var(--green); }
 
-    /* ── TAG LIST ── */
-    .tag-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      max-width: 700px;
+    .dialog-body {
+      font-size: clamp(14px,1.3vw,16px);
+      line-height: 1.7;
+      color: var(--near-white);
     }
 
-    .tag {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      padding: 8px 18px;
-      font-size: 0.9rem;
+    .dialog-body h3 {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin: 18px 0 8px;
     }
 
-    /* risk callout */
-    .risk-box {
-      background: rgba(255,77,77,0.07);
-      border: 1px solid rgba(255,77,77,0.25);
-      border-radius: var(--radius);
-      padding: 28px 32px;
-      max-width: 640px;
-      width: 100%;
-      text-align: center;
+    .dialog-body h3:first-child { margin-top: 0; }
+
+    .dialog-body p, .dialog-body li { margin-bottom: 6px; }
+
+    .dialog-body ul { padding-left: 18px; }
+
+    .clarity-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      margin-bottom: 14px;
     }
 
-    .risk-box .risk-title {
-      font-size: clamp(1.4rem, 3vw, 2.2rem);
-      font-weight: 800;
-      color: #ff6b6b;
-      margin-bottom: 12px;
+    .clarity-high { background: rgba(103,192,143,.2); color: #67c08f; border: 1px solid rgba(103,192,143,.4); }
+    .clarity-mid { background: rgba(184,245,60,.1); color: var(--green); border: 1px solid rgba(184,245,60,.3); }
+    .clarity-low { background: rgba(230,79,54,.1); color: #e64f36; border: 1px solid rgba(230,79,54,.3); }
+
+    /* ─── Reduced Motion ─── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+      .marquee-track { animation: none; }
     }
 
-    .risk-box .risk-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      #blast .split,
+      #fog .split,
+      #opening-script .two-col {
+        grid-template-columns: 1fr;
+      }
+      .checklist-grid,
+      #revision-rules .rules-grid,
+      #confirmation .form-wrap {
+        grid-template-columns: 1fr;
+      }
+      #confirmation .form-checks { flex-direction: column; gap: 14px; }
+      .orbit-node:nth-child(2) { top: -16%; }
+      .orbit-node:nth-child(3) { bottom: -16%; left: 6%; }
+      .orbit-node:nth-child(4) { bottom: -16%; right: 6%; }
+      #targetZone { min-height: 220px; }
+      .bullseye { width: 130px; height: 130px; }
+    }
 
-    /* RESPONSIVE */
     @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .card-grid { grid-template-columns: 1fr; }
-      #nav { padding: 10px 16px; gap: 10px; }
-      .dot-nav { display: none; }
+      .flow-track { gap: 0; }
+      .flow-arrow { font-size: 14px; padding: 0 4px; }
+      .flow-step { min-width: 72px; }
+      #confirmation .form-wrap { grid-template-columns: 1fr; }
+      .field.full { grid-column: 1; }
+      .form-submit { grid-column: 1; }
+      #opening-script .two-col { grid-template-columns: 1fr; }
     }
+
+    /* Nav dots */
+    .nav-dots {
+      position: fixed;
+      right: clamp(12px,2vw,24px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      border: none;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+      padding: 0;
+    }
+
+    .nav-dot.active {
+      background: var(--green);
+      transform: scale(1.4);
+      box-shadow: 0 0 8px rgba(184,245,60,.5);
+    }
+
+    @media (max-width: 600px) { .nav-dots { display: none; } }
   </style>
 </head>
+
 <body>
+<div id="mouse-glow" aria-hidden="true"></div>
 
-<!-- SLIDES CONTAINER -->
-<div id="slides">
+<!-- Navigation dots -->
+<nav class="nav-dots" aria-label="頁面導航">
+  <button class="nav-dot active" data-slide="0" aria-label="第 1 頁：開場"></button>
+  <button class="nav-dot" data-slide="1" aria-label="第 2 頁：爆炸場景"></button>
+  <button class="nav-dot" data-slide="2" aria-label="第 3 頁：需求模糊"></button>
+  <button class="nav-dot" data-slide="3" aria-label="第 4 頁：收斂技巧"></button>
+  <button class="nav-dot" data-slide="4" aria-label="第 5 頁：Checklist"></button>
+  <button class="nav-dot" data-slide="5" aria-label="第 6 頁：開工前"></button>
+  <button class="nav-dot" data-slide="6" aria-label="第 7 頁：改稿風險"></button>
+  <button class="nav-dot" data-slide="7" aria-label="第 8 頁：改稿流程"></button>
+  <button class="nav-dot" data-slide="8" aria-label="第 9 頁：改稿規則"></button>
+  <button class="nav-dot" data-slide="9" aria-label="第 10 頁：合作確認"></button>
+</nav>
 
-  <!-- SLIDE 1: HERO -->
-  <div class="slide active" id="slide-1" data-index="0">
-    <div class="badge">職人互動生存指南 · 2024</div>
-    <div class="label accent">DESIGNER SURVIVAL GUIDE</div>
-    <h1 class="hero-title">設計師<br><span class="highlight">接需求</span><br>生存術</h1>
-    <div class="meta">
-      <span>📋 11 個場景</span>
-      <span>🛠 互動工具</span>
-      <span>📄 合作確認書</span>
+<div class="deck" id="deck">
+
+  <!-- ── Slide 1: Opening ── -->
+  <section id="opening" class="slide">
+    <div class="opening-top">
+      <span class="hero-label">Designer Survival Guide</span>
+      <span>01 / 10</span>
     </div>
-  </div>
-
-  <!-- SLIDE 2: EXPLOSION -->
-  <div class="slide" id="slide-2" data-index="1">
-    <div class="explosion-tag">🔥 爆炸場景</div>
-    <div class="big-quote">
-      設計不是從<span class="highlight">畫面</span>開始<br>而是從<span class="highlight">邊界</span>開始
-    </div>
-    <div class="quote-bar"></div>
-    <p class="subtitle">沒有清楚的邊界，就沒有健康的合作關係。</p>
-  </div>
-
-  <!-- SLIDE 3: 需求模糊 -->
-  <div class="slide" id="slide-3" data-index="2">
-    <div class="label">SCENE 01 · 需求模糊</div>
-    <h2 class="slide-title">先確認<span class="highlight">目標</span><br>不先問喜好</h2>
-    <div class="subtitle" style="margin-top:32px;">
-    </div>
-    <div class="card-grid" style="margin-top:32px;">
-      <div class="step-card">
-        <div class="step-num">❌ 常見錯誤</div>
-        <div class="step-title">「你喜歡什麼風格？」</div>
-        <div class="step-desc">讓客戶主導美感，需求永遠對焦不了。</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">✅ 正確做法</div>
-        <div class="step-title">「這個設計要解決什麼問題？」</div>
-        <div class="step-desc">從目標出發，設計才有方向可以收斂。</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 4: 收斂技巧 -->
-  <div class="slide" id="slide-4" data-index="3">
-    <div class="label">SCENE 02 · 收斂技巧</div>
-    <h2 class="slide-title">把<span class="highlight">開放題</span><br>變成選擇題</h2>
-    <div class="card-grid" style="margin-top:40px; max-width:800px;">
-      <div class="step-card">
-        <div class="step-num">BEFORE</div>
-        <div class="step-title">「你覺得這個 Banner 怎麼樣？」</div>
-        <div class="step-desc">開放式問題，客戶不知道怎麼回答。</div>
-      </div>
-      <div class="step-card" style="border-color:var(--accent-border);">
-        <div class="step-num" style="color:var(--accent);">AFTER</div>
-        <div class="step-title">「偏向 A 清爽版還是 B 重點突出版？」</div>
-        <div class="step-desc">給選項，收到有效回饋，快速收斂方向。</div>
+    <div class="slide-inner opening-content">
+      <div class="kicker">Designer Survival Guide</div>
+      <h1>設計師接需求<br>生存術</h1>
+      <p class="lead">把模糊期待變成清楚合作，讓設計從邊界開始。</p>
+      <div class="marquee-wrap">
+        <div class="marquee-track" aria-hidden="true">
+          <span class="accent">Scope first</span>
+          <span>/</span>
+          <span>Visual later</span>
+          <span>/</span>
+          <span class="accent">Confirm in writing</span>
+          <span>/</span>
+          <span>Revision boundary</span>
+          <span>/</span>
+          <span class="accent">Scope first</span>
+          <span>/</span>
+          <span>Visual later</span>
+          <span>/</span>
+          <span class="accent">Confirm in writing</span>
+          <span>/</span>
+          <span>Revision boundary</span>
+          <span>/</span>
+          <!-- repeated for seamless loop -->
+          <span class="accent">Scope first</span>
+          <span>/</span>
+          <span>Visual later</span>
+          <span>/</span>
+          <span class="accent">Confirm in writing</span>
+          <span>/</span>
+          <span>Revision boundary</span>
+          <span>/</span>
+          <span class="accent">Scope first</span>
+          <span>/</span>
+          <span>Visual later</span>
+          <span>/</span>
+          <span class="accent">Confirm in writing</span>
+          <span>/</span>
+          <span>Revision boundary</span>
+          <span>/</span>
+        </div>
       </div>
     </div>
-  </div>
+    <div class="opening-num" aria-hidden="true">01</div>
+  </section>
 
-  <!-- SLIDE 5: CHECKLIST -->
-  <div class="slide" id="slide-5" data-index="4">
-    <div class="label accent">互動工具 · 需求訪談 CHECKLIST</div>
-    <div class="checklist-wrap">
-      <div class="checklist-header">
-        <div style="font-size:1.1rem; font-weight:700;">訪談確認清單</div>
-        <div class="progress-text" id="check-progress">0/6</div>
+  <!-- ── Slide 2: Blast ── -->
+  <section id="blast" class="slide">
+    <div class="slide-inner">
+      <div class="pg">02 / 10</div>
+      <div class="kicker">爆炸場景</div>
+      <h2>設計不是從畫面開始，<br>而是從邊界開始</h2>
+      <p class="lead">需求沒有被說清楚，改稿就會替你補上所有成本。</p>
+
+      <div class="split">
+        <div>
+          <nav class="nav-tabs" role="tablist" aria-label="常見爆炸場景">
+            <button class="tab-btn" role="tab" aria-selected="true" data-tab="fog" id="tab-fog" aria-controls="panel-fog">需求模糊</button>
+            <button class="tab-btn" role="tab" aria-selected="false" data-tab="loop" id="tab-loop" aria-controls="panel-loop">無限改稿</button>
+          </nav>
+
+          <div id="panel-fog" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-fog">
+            <div class="scenario-box">
+              <span class="scenario-label">場景 A</span>
+              客戶說「你先做看看」，但沒有定義目標、受眾、限制與驗收方式。
+            </div>
+          </div>
+
+          <div id="panel-loop" class="tab-panel" role="tabpanel" aria-labelledby="tab-loop">
+            <div class="scenario-box">
+              <span class="scenario-label">場景 B</span>
+              每次回饋都像新專案，因為一開始沒有說清楚修改輪數與新增需求邊界。
+            </div>
+          </div>
+        </div>
+
+        <div style="border-left:1px solid var(--border-dim); padding-left: clamp(20px,3vw,40px);">
+          <p style="font-family:var(--font-mono);font-size:clamp(11px,.9vw,13px);color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;">兩個後果</p>
+          <p style="font-size:clamp(1rem,1.4vw,1.3rem);line-height:1.7;color:var(--near-white);margin-bottom:20px;">模糊需求導致無邊界的工作量，設計師被迫吸收所有不確定性的成本。</p>
+          <p style="font-size:clamp(1rem,1.4vw,1.3rem);line-height:1.7;color:var(--near-white);">而清楚的邊界，才能讓雙方都知道「合作是什麼」，設計判斷才有依據。</p>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ── Slide 3: Fog ── -->
+  <section id="fog" class="slide">
+    <div class="slide-inner">
+      <div class="pg">03 / 10</div>
+      <div class="kicker">需求模糊</div>
+      <h2>先確認目標，不先問喜好</h2>
+      <p class="lead">喜好太主觀，先定義「客戶終極目標」，用終極目標來判斷客戶需求。</p>
+
+      <div class="split">
+        <div>
+          <p style="font-size:clamp(1rem,1.5vw,1.3rem);line-height:1.7;color:var(--near-white);margin-bottom:20px;">開場不要問：你喜歡什麼顏色？什麼風格？</p>
+          <p style="font-size:clamp(1rem,1.5vw,1.3rem);line-height:1.7;color:var(--green);font-weight:700;">改問：你希望這個設計讓訪客做什麼？</p>
+          <p style="font-size:clamp(.95rem,1.3vw,1.1rem);color:var(--muted);margin-top:16px;line-height:1.6;">把訪談從「喜好蒐集」轉成「目標校準」，設計判斷才有依據，改稿才有邊界。</p>
+        </div>
+
+        <div
+          id="targetZone"
+          role="button"
+          tabindex="0"
+          aria-label="點擊發射飛鏢到靶心"
+        >
+          <div class="bullseye">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+          </div>
+          <div class="dart" id="dart" aria-hidden="true">🎯</div>
+          <p class="target-hint" id="targetHint">CLICK TO DEFINE TARGET</p>
+          <div class="locked-label" id="lockedLabel">✦ Ultimate Goal Locked</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Slide 4: Narrow ── -->
+  <section id="narrow" class="slide">
+    <div class="slide-inner">
+      <div class="pg">04 / 10</div>
+      <div class="kicker">收斂技巧</div>
+      <h2>把開放題變成選擇題</h2>
+      <p class="lead">不要問「你喜歡什麼風格」，請勾選您喜歡的設計概念，以便更接近你的商業目標。</p>
+
+      <div id="stylePicker">
+        <div class="picker-group">
+          <p class="picker-group-label">色系</p>
+          <div class="chip-row">
+            <div class="chip"><input type="checkbox" id="s-light" name="color" value="淺色"><label for="s-light">淺色</label></div>
+            <div class="chip"><input type="checkbox" id="s-dark" name="color" value="深色"><label for="s-dark">深色</label></div>
+          </div>
+        </div>
+
+        <div class="picker-group">
+          <p class="picker-group-label">風格</p>
+          <div class="chip-row">
+            <div class="chip"><input type="checkbox" id="s-tech" name="style" value="科技感"><label for="s-tech">科技感</label></div>
+            <div class="chip"><input type="checkbox" id="s-minimal" name="style" value="簡約風"><label for="s-minimal">簡約風</label></div>
+            <div class="chip"><input type="checkbox" id="s-jp" name="style" value="日系質感"><label for="s-jp">日系質感</label></div>
+            <div class="chip"><input type="checkbox" id="s-nordic" name="style" value="北歐簡約"><label for="s-nordic">北歐簡約</label></div>
+            <div class="chip"><input type="checkbox" id="s-colorful" name="style" value="豐富多彩"><label for="s-colorful">豐富多彩</label></div>
+            <div class="chip"><input type="checkbox" id="s-tw" name="style" value="臺灣味"><label for="s-tw">臺灣味</label></div>
+            <div class="chip"><input type="checkbox" id="s-cute" name="style" value="可愛風"><label for="s-cute">可愛風</label></div>
+            <div class="chip"><input type="checkbox" id="s-luxury" name="style" value="奢華高級"><label for="s-luxury">奢華高級</label></div>
+          </div>
+        </div>
+
+        <div class="picker-group">
+          <p class="picker-group-label">字體</p>
+          <div class="chip-row">
+            <div class="chip"><input type="checkbox" id="s-sans" name="font" value="無襯線字"><label for="s-sans">無襯線字</label></div>
+            <div class="chip"><input type="checkbox" id="s-serif" name="font" value="有襯線字"><label for="s-serif">有襯線字</label></div>
+            <div class="chip"><input type="checkbox" id="s-round" name="font" value="圓體"><label for="s-round">圓體</label></div>
+            <div class="chip"><input type="checkbox" id="s-bold" name="font" value="粗體"><label for="s-bold">粗體</label></div>
+          </div>
+        </div>
+
+        <div class="picker-group">
+          <p class="picker-group-label">排版</p>
+          <div class="chip-row">
+            <div class="chip"><input type="checkbox" id="s-layout-min" name="layout" value="簡約"><label for="s-layout-min">簡約</label></div>
+            <div class="chip"><input type="checkbox" id="s-layout-var" name="layout" value="多變"><label for="s-layout-var">多變</label></div>
+          </div>
+        </div>
+
+        <div class="picker-actions">
+          <button class="btn btn-solid" id="styleReportBtn">OK</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Slide 5: Checklist ── -->
+  <section id="checklist" class="slide">
+    <div class="slide-inner">
+      <div class="pg">05 / 10</div>
+      <div class="kicker">Checklist</div>
+      <h2>需求訪談 Checklist</h2>
+      <p class="lead">開工前先對焦，讓後面的設計判斷有依據。</p>
+
+      <div class="checklist-grid" role="group" aria-label="需求訪談清單">
+        <label class="check-item" id="ci-goal">
+          <input type="checkbox" data-id="goal" aria-label="確認設計最終目標">
+          <span class="check-label">確認設計最終目標</span>
+        </label>
+        <label class="check-item" id="ci-user">
+          <input type="checkbox" data-id="user" aria-label="確認主要使用者">
+          <span class="check-label">確認主要使用者</span>
+        </label>
+        <label class="check-item" id="ci-refs">
+          <input type="checkbox" data-id="refs" aria-label="取得至少 3 個視覺參考">
+          <span class="check-label">取得至少 3 個視覺參考</span>
+        </label>
+        <label class="check-item" id="ci-avoid">
+          <input type="checkbox" data-id="avoid" aria-label="確認不要的方向">
+          <span class="check-label">確認不要的方向</span>
+        </label>
+        <label class="check-item" id="ci-delivery">
+          <input type="checkbox" data-id="delivery" aria-label="確認交付格式與時程">
+          <span class="check-label">確認交付格式與時程</span>
+        </label>
+        <label class="check-item" id="ci-written">
+          <input type="checkbox" data-id="written" aria-label="需求確認書已取得書面確認">
+          <span class="check-label">需求確認書已取得書面確認</span>
+        </label>
+      </div>
+
       <div class="progress-bar-wrap">
-        <div class="progress-bar" id="check-bar"></div>
+        <div class="progress-bar" id="checkProgress"></div>
       </div>
-      <div id="checklist">
-        <div class="check-item" data-id="goal" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div>
-          <div class="check-label">確認設計最終目標</div>
-        </div>
-        <div class="check-item" data-id="user" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div>
-          <div class="check-label">確認主要使用者</div>
-        </div>
-        <div class="check-item" data-id="ref" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div>
-          <div class="check-label">取得至少 3 個視覺參考</div>
-        </div>
-        <div class="check-item" data-id="no" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div>
-          <div class="check-label">確認不要的方向</div>
-        </div>
-        <div class="check-item" data-id="format" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div>
-          <div class="check-label">確認交付格式與時程</div>
-        </div>
-        <div class="check-item" data-id="confirm" onclick="toggleCheck(this)">
-          <div class="check-box">✓</div>
-          <div class="check-label">需求確認書已取得書面確認</div>
-        </div>
-      </div>
-      <button class="gen-btn" onclick="openChecklistModal()">📊 產生對焦報告</button>
-    </div>
-  </div>
+      <p class="progress-text">完成度：<span id="checkCount">0</span> / 6</p>
 
-  <!-- SLIDE 6: 開場話術 -->
-  <div class="slide" id="slide-6" data-index="5">
-    <div class="label">開場話術模板</div>
-    <h2 class="slide-title" style="margin-bottom:32px;">說清楚<br>才能<span class="highlight">做得好</span></h2>
-    <div class="script-box">
-      <div class="script-text" id="script-opening">
-        在開始設計之前，我想先確認專案目標與使用情境，避免後續方向偏移。我會準備幾個問題，大概 10 分鐘，確認後就可以直接開始。
-      </div>
-      <button class="copy-btn" id="copy-opening" onclick="copyScript('opening')">
-        📋 複製話術
-      </button>
-    </div>
-  </div>
-
-  <!-- SLIDE 7: 無限改稿風險 -->
-  <div class="slide" id="slide-7" data-index="6">
-    <div class="label">SCENE 03 · 無限改稿</div>
-    <div class="risk-box">
-      <div class="risk-title">修改 ≠ 重做</div>
-      <div class="risk-desc" style="margin-bottom:20px;">沒有明確邊界的合作，每一次「小調整」都可能變成重新來過。</div>
-      <div class="tag-row" style="justify-content:center;">
-        <div class="tag">改一下顏色</div>
-        <div class="tag">版面重排</div>
-        <div class="tag">字體換掉</div>
-        <div class="tag">整個重來</div>
+      <div class="checklist-actions">
+        <button class="btn" id="reportBtn">產生對焦報告</button>
       </div>
     </div>
-    <p class="subtitle" style="margin-top:24px;">建立修改邊界，是保護你也是保護客戶。</p>
-  </div>
+  </section>
 
-  <!-- SLIDE 8: 改稿流程 -->
-  <div class="slide" id="slide-8" data-index="7">
-    <div class="label">改稿流程圖</div>
-    <h2 class="slide-title" style="margin-bottom:36px;">清楚的<span class="highlight">流程</span><br>才有清楚的結果</h2>
-    <div class="flow">
-      <div class="flow-node accent-node">需求確認</div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-node">第一版</div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-node">修改回饋</div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-node">第二版</div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-node accent-node">定稿 ✓</div>
-    </div>
-  </div>
+  <!-- ── Slide 6: Opening Script ── -->
+  <section id="opening-script" class="slide">
+    <div class="slide-inner">
+      <div class="pg">06 / 10</div>
+      <div class="kicker">Checklist</div>
+      <h2>開工前，先把六件事釘住。</h2>
+      <p class="lead">確認書不是形式，是設計師的工作地圖，也是雙方的邊界。</p>
 
-  <!-- SLIDE 9: 加價話術 -->
-  <div class="slide" id="slide-9" data-index="8">
-    <div class="label">加價話術模板</div>
-    <h2 class="slide-title" style="margin-bottom:32px;">範圍外的<br>需要<span class="highlight">另外報價</span></h2>
-    <div class="script-box">
-      <div class="script-text" id="script-pricing">
-        目前提出的需求已超出原先確認範圍，因此會另外提供追加報價供您確認。在確認追加費用之前，現有範圍內的工作會繼續進行。
-      </div>
-      <button class="copy-btn" id="copy-pricing" onclick="copyScript('pricing')">
-        📋 複製話術
-      </button>
-    </div>
-  </div>
+      <div class="two-col">
+        <div id="clientChecklist">
+          <label class="client-check-item">
+            <input type="checkbox" data-client-copy="最終目標是轉換、品牌，還是資訊傳遞">
+            <span class="client-check-label">最終目標：轉換、品牌，還是資訊傳遞</span>
+          </label>
+          <label class="client-check-item">
+            <input type="checkbox" data-client-copy="主要使用者的年齡、裝置與使用情境">
+            <span class="client-check-label">主要使用者：年齡、裝置、使用情境</span>
+          </label>
+          <label class="client-check-item">
+            <input type="checkbox" data-client-copy="至少三個視覺參考">
+            <span class="client-check-label">至少三個視覺參考</span>
+          </label>
+          <label class="client-check-item">
+            <input type="checkbox" data-client-copy="明確列出「不要」的方向">
+            <span class="client-check-label">明確列出「不要」的方向</span>
+          </label>
+          <label class="client-check-item">
+            <input type="checkbox" data-client-copy="交付格式與時程">
+            <span class="client-check-label">交付格式與時程</span>
+          </label>
+          <label class="client-check-item">
+            <input type="checkbox" data-client-copy="書面或訊息確認已完成">
+            <span class="client-check-label">書面或訊息確認已完成</span>
+          </label>
+        </div>
 
-  <!-- SLIDE 10: 正式合作確認 -->
-  <div class="slide" id="slide-10" data-index="9">
-    <div class="label accent">互動工具 · 正式合作確認</div>
-    <div class="form-wrap">
-      <div class="form-grid">
-        <div class="form-field">
-          <label>委託方名稱</label>
-          <input type="text" id="f-client" placeholder="客戶 / 公司名稱">
-        </div>
-        <div class="form-field">
-          <label>專案名稱</label>
-          <input type="text" id="f-project" placeholder="專案名稱">
-        </div>
-        <div class="form-field">
-          <label>預計時程</label>
-          <input type="text" id="f-timeline" placeholder="例：2024/02/01 — 02/28">
-        </div>
-        <div class="form-field">
-          <label>修改輪數</label>
-          <select id="f-rounds">
-            <option value="">請選擇</option>
-            <option>1 輪</option>
-            <option>2 輪</option>
-            <option>3 輪</option>
-            <option>無限制（另計費）</option>
-          </select>
-        </div>
-        <div class="form-field full">
-          <label>備註</label>
-          <textarea id="f-note" placeholder="其他補充說明…"></textarea>
+        <div class="script-panel">
+          <p class="script-panel-label">Client Script</p>
+          <div id="openingText">勾選右側項目後，這裡會自動整理成一段可以直接跟客戶確認的話。</div>
+          <div class="script-copy-btn">
+            <button class="btn" data-copy="opening">複製文字</button>
+          </div>
         </div>
       </div>
-      <label class="form-check">
-        <input type="checkbox" id="f-scope"> 已確認交付範圍
-      </label>
-      <label class="form-check">
-        <input type="checkbox" id="f-terms"> 已同意合作條款
-      </label>
-      <button class="submit-btn" onclick="openContractModal()">📄 產生合作確認書</button>
     </div>
+  </section>
+
+  <!-- ── Slide 7: Revision Risk ── -->
+  <section id="revision-risk" class="slide">
+    <div class="slide-inner">
+      <div class="pg">07 / 10</div>
+      <div class="kicker">無限改稿風險</div>
+      <h2>修改不等於重做</h2>
+      <p class="lead">建立修改邊界，才能保護品質、時程與合作關係。</p>
+
+      <div class="orbit-wrap">
+        <div class="revision-orbit" aria-label="修改範疇示意圖">
+          <div class="orbit-ring"></div>
+
+          <!-- connector lines using SVG -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" aria-hidden="true">
+            <line x1="50%" y1="50%" x2="50%" y2="10%" stroke="rgba(184,245,60,.15)" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="50%" y1="50%" x2="17%" y2="88%" stroke="rgba(184,245,60,.15)" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="50%" y1="50%" x2="83%" y2="88%" stroke="rgba(184,245,60,.15)" stroke-width="1" stroke-dasharray="4 4"/>
+          </svg>
+
+          <div class="orbit-center" aria-label="核心：Scope">Scope</div>
+
+          <!-- Node 1: top -->
+          <div class="orbit-node" style="top:-14%;left:50%;transform:translateX(-50%);">
+            <div class="orbit-icon">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <span class="orbit-node-label">修改：方向內調整</span>
+          </div>
+
+          <!-- Node 2: bottom-left -->
+          <div class="orbit-node" style="bottom:-14%;left:8%;">
+            <div class="orbit-icon">
+              <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
+            </div>
+            <span class="orbit-node-label">重做：目標已改變</span>
+          </div>
+
+          <!-- Node 3: bottom-right -->
+          <div class="orbit-node" style="bottom:-14%;right:8%;">
+            <div class="orbit-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <span class="orbit-node-label">新增：重估時程費用</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Slide 8: Flow ── -->
+  <section id="flow" class="slide">
+    <div class="slide-inner">
+      <div class="pg">08 / 10</div>
+      <div class="kicker">改稿流程圖</div>
+      <h2>把流程畫出來，<br>合作就會安靜很多</h2>
+
+      <div class="flow-track" role="list" aria-label="改稿流程">
+        <div class="flow-step" role="listitem">
+          <div class="flow-circle">1</div>
+          <span class="flow-step-label">需求確認</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-circle">2</div>
+          <span class="flow-step-label">第一版</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-circle">3</div>
+          <span class="flow-step-label">修改回饋</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-circle">4</div>
+          <span class="flow-step-label">第二版</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-step" role="listitem">
+          <div class="flow-circle">5</div>
+          <span class="flow-step-label">定稿</span>
+        </div>
+      </div>
+
+      <p style="font-size:clamp(1rem,1.5vw,1.3rem);line-height:1.7;color:var(--near-white);margin-top:clamp(24px,3vw,40px);max-width:680px;">每個步驟都需要明確的驗收標準。設計師在每個節點的工作才有邊界，客戶回饋才能聚焦，合作才不會失控。</p>
+    </div>
+  </section>
+
+  <!-- ── Slide 9: Revision Rules ── -->
+  <section id="revision-rules" class="slide">
+    <div class="slide-inner">
+      <div class="pg">09 / 10</div>
+      <div class="kicker">Revision Rules</div>
+      <h2>改稿要管理，不要靠忍耐。</h2>
+
+      <div class="rules-grid">
+        <div class="rule-card">
+          <div class="rule-num" style="color:#3156e8;">1</div>
+          <div class="rule-title">先定義輪數</div>
+          <p class="rule-body">標準做法：提案一次，修改兩輪。超出後按小時或另行報價。</p>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num" style="color:#e64f36;">2</div>
+          <div class="rule-title">集中收集意見</div>
+          <p class="rule-body">不接受碎片式改稿，請客戶把同一輪意見一次整理好。</p>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num" style="color:#67c08f;">3</div>
+          <div class="rule-title">每次標版本號</div>
+          <p class="rule-body">用 v1.0、v1.1、v2.0 記錄交付，讓階段清楚可追蹤。</p>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num" style="color:#b8f53c;">4</div>
+          <div class="rule-title">超出就說明費用</div>
+          <p class="rule-body">邊界說清楚，專業關係才不會靠情緒維持。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Slide 10: Confirmation ── -->
+  <section id="confirmation" class="slide">
+    <div class="slide-inner">
+      <div class="pg">10 / 10</div>
+      <div class="kicker">正式合作確認</div>
+      <h2>合作確認書</h2>
+      <p class="lead">把口頭共識變成可回頭查看的合作依據。</p>
+
+      <form id="confirmForm" novalidate>
+        <div class="form-wrap">
+          <div class="field">
+            <label for="f-client">委託方名稱</label>
+            <input type="text" id="f-client" name="client" autocomplete="organization" placeholder="公司或個人名稱">
+          </div>
+          <div class="field">
+            <label for="f-project">專案名稱</label>
+            <input type="text" id="f-project" name="project" placeholder="專案名稱">
+          </div>
+          <div class="field">
+            <label for="f-timeline">預計時程</label>
+            <input type="text" id="f-timeline" name="timeline" placeholder="例：2026/07/01 ~ 2026/07/31">
+          </div>
+          <div class="field">
+            <label for="f-rounds">修改輪數</label>
+            <input type="text" id="f-rounds" name="rounds" inputmode="numeric" placeholder="例：2">
+          </div>
+          <div class="field full">
+            <label for="f-notes">備註</label>
+            <textarea id="f-notes" name="notes" placeholder="補充說明或特別條件"></textarea>
+          </div>
+          <div class="form-checks">
+            <label class="form-check">
+              <input type="checkbox" name="scope">
+              <span>已確認交付範圍</span>
+            </label>
+            <label class="form-check">
+              <input type="checkbox" name="terms">
+              <span>已同意合作條款</span>
+            </label>
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-solid">產生合作確認書</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+</div><!-- /deck -->
+
+<!-- ── Modal: Style Report ── -->
+<dialog id="styleModal" aria-labelledby="styleModalTitle" aria-modal="true">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="styleModalTitle">風格偏好判讀</h2>
+    <button class="dialog-close" aria-label="關閉">✕</button>
   </div>
+  <div class="dialog-body" id="styleModalBody"></div>
+</dialog>
 
-  <!-- SLIDE 11: FINAL -->
-  <div class="slide" id="slide-11" data-index="10">
-    <div class="label">總結</div>
-    <div class="final-line">專業不是</div>
-    <div class="final-line"><span class="highlight">無限配合</span></div>
-    <div class="final-divider">——</div>
-    <div class="final-line">而是讓</div>
-    <div class="final-line">合作變<span class="highlight">清楚</span></div>
-    <p class="subtitle" style="margin-top:32px;">設計師接案流程互動生存指南 · 職人系列</p>
+<!-- ── Modal: Focus Report ── -->
+<dialog id="reportModal" aria-labelledby="reportModalTitle" aria-modal="true">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="reportModalTitle">需求對焦報告</h2>
+    <button class="dialog-close" aria-label="關閉">✕</button>
   </div>
+  <div class="dialog-body" id="reportModalBody"></div>
+</dialog>
 
-</div>
-
-<!-- NAVIGATION -->
-<div id="nav">
-  <button onclick="prevSlide()" title="上一頁">←</button>
-  <div class="dot-nav" id="dot-nav"></div>
-  <div id="slide-counter">1 / 11</div>
-  <button onclick="nextSlide()" title="下一頁">→</button>
-</div>
-
-<!-- MODAL: 對焦報告 -->
-<div class="modal-overlay" id="modal-checklist">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('modal-checklist')">✕</button>
-    <div class="modal-title">
-      <div class="dot-accent"></div>
-      需求對焦報告
-    </div>
-    <div class="modal-section">
-      <h4>需求清晰度</h4>
-      <div class="clarity-score" id="clarity-score">0%</div>
-      <div class="clarity-label" id="clarity-label">尚需補充更多資訊</div>
-    </div>
-    <div class="modal-section">
-      <h4>已完成項目</h4>
-      <div id="modal-done"></div>
-    </div>
-    <div class="modal-section">
-      <h4>尚需補齊項目</h4>
-      <div id="modal-todo"></div>
-    </div>
-    <div class="modal-section">
-      <h4>下一步建議</h4>
-      <div class="next-step" id="modal-next"></div>
-    </div>
+<!-- ── Modal: Confirmation ── -->
+<dialog id="confirmModal" aria-labelledby="confirmModalTitle" aria-modal="true">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="confirmModalTitle">合作確認書摘要</h2>
+    <button class="dialog-close" aria-label="關閉">✕</button>
   </div>
-</div>
-
-<!-- MODAL: 合作確認書 -->
-<div class="modal-overlay" id="modal-contract">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('modal-contract')">✕</button>
-    <div class="modal-title">
-      <div class="dot-accent"></div>
-      合作確認書摘要
-    </div>
-    <div id="contract-content"></div>
-    <div style="margin-top:20px; padding:14px 16px; background:var(--accent-dim); border:1px solid var(--accent-border); border-radius:var(--radius-sm); font-size:0.85rem; color:var(--accent);">
-      ✓ 此確認書已記錄，請雙方截圖留存或轉為 PDF。
-    </div>
-  </div>
-</div>
+  <div class="dialog-body" id="confirmModalBody"></div>
+</dialog>
 
 <script>
-  // ── STATE ──
-  let current = 0;
-  const total = 11;
-  const slides = document.querySelectorAll('.slide');
-  const counter = document.getElementById('slide-counter');
-  const dotNav = document.getElementById('dot-nav');
+/* ── Mouse glow ── */
+const glow = document.getElementById('mouse-glow');
+document.addEventListener('mousemove', e => {
+  glow.style.left = e.clientX + 'px';
+  glow.style.top = e.clientY + 'px';
+});
 
-  // Build dots
-  slides.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === 0 ? ' active' : '');
-    d.onclick = () => goTo(i);
-    dotNav.appendChild(d);
-  });
+/* ── Nav dots ── */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots = Array.from(document.querySelectorAll('.nav-dot'));
 
-  function updateDots() {
-    document.querySelectorAll('.dot').forEach((d, i) => {
-      d.classList.toggle('active', i === current);
-    });
-  }
-
-  function goTo(n) {
-    if (n < 0 || n >= total) return;
-    slides[current].classList.remove('active');
-    slides[current].classList.add('exit');
-    setTimeout(() => slides[current].classList.remove('exit'), 450);
-    current = n;
-    slides[current].classList.add('active');
-    counter.textContent = `${current + 1} / ${total}`;
-    updateDots();
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'tab_switch', { tab_name: `slide_${current + 1}` });
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = slides.indexOf(entry.target);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
     }
+  });
+}, { threshold: 0.5 });
+
+slides.forEach(s => observer.observe(s));
+
+dots.forEach((dot, i) => {
+  dot.addEventListener('click', () => slides[i].scrollIntoView({ behavior: 'smooth' }));
+});
+
+/* Keyboard nav — arrows only when not in a form element */
+document.addEventListener('keydown', e => {
+  const active = document.activeElement;
+  const inForm = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.tagName === 'BUTTON');
+  if (inForm) return;
+  const activeIdx = dots.findIndex(d => d.classList.contains('active'));
+  if (e.key === 'ArrowDown' && activeIdx < slides.length - 1) {
+    slides[activeIdx + 1].scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' && activeIdx > 0) {
+    slides[activeIdx - 1].scrollIntoView({ behavior: 'smooth' });
   }
+});
 
-  function nextSlide() { goTo(current + 1); }
-  function prevSlide() { goTo(current - 1); }
+/* ── Slide 2: Tabs ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', 'false'));
+    btn.setAttribute('aria-selected', 'true');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('is-active'));
+    document.getElementById('panel-' + tab).classList.add('is-active');
+    gtag('event', 'tab_switch', { tab_name: tab });
+  });
+});
 
-  // Keyboard nav — skip when focused on interactive elements
-  document.addEventListener('keydown', e => {
-    const tag = document.activeElement.tagName.toLowerCase();
-    const interactive = ['input','textarea','select','button'];
-    if (interactive.includes(tag)) return;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+/* ── Slide 3: Target Zone ── */
+const targetZone = document.getElementById('targetZone');
+const dart = document.getElementById('dart');
+const targetHint = document.getElementById('targetHint');
+const lockedLabel = document.getElementById('lockedLabel');
+let dartFired = false;
+
+function fireDart(x, y) {
+  if (dartFired) return;
+  dartFired = true;
+  const rect = targetZone.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  dart.style.left = (x - rect.left) + 'px';
+  dart.style.top = (y - rect.top) + 'px';
+  dart.style.opacity = '1';
+
+  requestAnimationFrame(() => {
+    dart.classList.add('flying');
+    dart.style.left = '50%';
+    dart.style.top = '50%';
   });
 
-  // ── CHECKLIST ──
-  const checkLabels = {
+  targetHint.style.opacity = '0';
+  setTimeout(() => {
+    lockedLabel.style.opacity = '1';
+    targetZone.style.borderColor = 'rgba(184,245,60,.6)';
+    targetZone.style.boxShadow = '0 0 30px rgba(184,245,60,.15)';
+  }, 500);
+}
+
+targetZone.addEventListener('click', e => {
+  fireDart(e.clientX, e.clientY);
+});
+
+targetZone.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    const rect = targetZone.getBoundingClientRect();
+    fireDart(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }
+});
+
+/* ── Slide 4: Style Picker ── */
+document.getElementById('styleReportBtn').addEventListener('click', () => {
+  const checked = name => Array.from(document.querySelectorAll(`#stylePicker input[name="${name}"]:checked`)).map(el => el.value);
+  const colors = checked('color');
+  const styles = checked('style');
+  const fonts = checked('font');
+  const layouts = checked('layout');
+
+  const types = [];
+  if (styles.includes('科技感')) types.push('科技產品型：適合 AI、SaaS、數位服務、工具型品牌');
+  if (styles.includes('日系質感') || styles.includes('北歐簡約')) types.push('質感生活型：適合生活風格、選物、空間、手作與品牌形象');
+  if (styles.includes('奢華高級')) types.push('高端精品型：適合顧問、精品、醫美、高單價服務');
+  if (styles.includes('可愛風')) types.push('親和可愛型：適合親子、插畫、甜點、社群互動品牌');
+  if (styles.includes('臺灣味')) types.push('在地文化型：適合地方品牌、餐飲、文化策展與特色商品');
+  if (styles.includes('豐富多彩')) types.push('活潑活動型：適合活動頁、教育推廣、社群企劃與年輕族群');
+  if (styles.includes('簡約風') || layouts.includes('簡約')) types.push('清楚轉換型：適合需要快速理解、報名、詢價或購買的頁面');
+  if (types.length === 0) types.push('基礎中性型：目前偏好還不明確，建議再提供 2–3 個視覺參考交叉確認');
+
+  const nextSteps = [];
+  if (colors.includes('深色')) nextSteps.push('可嘗試深色底、強對比與明確重點色。');
+  if (colors.includes('淺色')) nextSteps.push('可嘗試乾淨留白、柔和底色與清楚資訊層級。');
+  if (fonts.includes('有襯線字')) nextSteps.push('標題可加入有襯線字，增加 editorial 或高級感。');
+  if (fonts.includes('圓體')) nextSteps.push('可用圓體降低距離感，讓品牌更親切。');
+  if (fonts.includes('粗體')) nextSteps.push('可用粗體建立更強烈的標題與行動引導。');
+  if (layouts.includes('多變')) nextSteps.push('版面可加入錯落、分區節奏與更強的視覺動線。');
+  if (nextSteps.length === 0) nextSteps.push('請補選色系、風格、字體或排版，再產生更精準的方向判讀。');
+
+  const body = document.getElementById('styleModalBody');
+  body.innerHTML = `
+    <h3>客戶可能喜歡的風格類型：</h3>
+    <ul>${types.map(t => `<li>- ${t}</li>`).join('')}</ul>
+    <h3>勾選摘要：</h3>
+    <p>色系偏好：${colors.length ? colors.join('、') : '尚未選擇'}</p>
+    <p>風格偏好：${styles.length ? styles.join('、') : '尚未選擇'}</p>
+    <p>字體偏好：${fonts.length ? fonts.join('、') : '尚未選擇'}</p>
+    <p>排版偏好：${layouts.length ? layouts.join('、') : '尚未選擇'}</p>
+    <h3>下一步建議：</h3>
+    ${nextSteps.map(s => `<p>${s}</p>`).join('')}
+  `;
+  document.getElementById('styleModal').showModal();
+});
+
+/* ── Slide 5: Checklist ── */
+const checkItems = document.querySelectorAll('#checklist .check-item input[type="checkbox"]');
+const checkCountEl = document.getElementById('checkCount');
+const progressBar = document.getElementById('checkProgress');
+
+function updateProgress() {
+  const checked = Array.from(checkItems).filter(c => c.checked).length;
+  checkCountEl.textContent = checked;
+  progressBar.style.width = (checked / 6 * 100) + '%';
+  checkItems.forEach(c => {
+    c.closest('.check-item').classList.toggle('is-checked', c.checked);
+  });
+}
+
+checkItems.forEach(cb => {
+  cb.addEventListener('change', () => {
+    gtag('event', 'checklist_item', { item_id: cb.dataset.id, checked: cb.checked });
+    updateProgress();
+  });
+});
+
+document.getElementById('reportBtn').addEventListener('click', () => {
+  const labels = {
     goal: '確認設計最終目標',
     user: '確認主要使用者',
-    ref: '取得至少 3 個視覺參考',
-    no: '確認不要的方向',
-    format: '確認交付格式與時程',
-    confirm: '需求確認書已取得書面確認'
+    refs: '取得至少 3 個視覺參考',
+    avoid: '確認不要的方向',
+    delivery: '確認交付格式與時程',
+    written: '需求確認書已取得書面確認'
   };
 
-  function toggleCheck(el) {
-    const id = el.dataset.id;
-    const checked = el.classList.toggle('checked');
-    updateProgress();
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'checklist_item', { item_id: id, checked: checked });
-    }
+  const done = Array.from(checkItems).filter(c => c.checked).map(c => labels[c.dataset.id]);
+  const missing = Array.from(checkItems).filter(c => !c.checked).map(c => labels[c.dataset.id]);
+  const count = done.length;
+
+  let clarityHtml, clarityClass;
+  if (count === 6) {
+    clarityHtml = '需求清晰度：高，可以進入正式合作確認。';
+    clarityClass = 'clarity-high';
+  } else if (count >= 3) {
+    clarityHtml = '需求清晰度：中，建議補齊關鍵缺口再開工。';
+    clarityClass = 'clarity-mid';
+  } else {
+    clarityHtml = '需求清晰度：低，目前不建議直接開始設計。';
+    clarityClass = 'clarity-low';
   }
 
-  function updateProgress() {
-    const items = document.querySelectorAll('.check-item');
-    const done = document.querySelectorAll('.check-item.checked').length;
-    document.getElementById('check-progress').textContent = `${done}/${items.length}`;
-    document.getElementById('check-bar').style.width = `${(done / items.length) * 100}%`;
+  const nextStep = missing.length > 0
+    ? '請先把尚未補齊的項目整理成書面確認，再進入設計製作。'
+    : '請將本次共識整理成合作確認書，作為後續修改與驗收依據。';
+
+  document.getElementById('reportModalBody').innerHTML = `
+    <span class="clarity-badge ${clarityClass}">${clarityHtml}</span>
+    <h3>已完成項目：</h3>
+    ${done.length ? `<ul>${done.map(d => `<li>${d}</li>`).join('')}</ul>` : '<p>尚無</p>'}
+    <h3>尚需補齊項目：</h3>
+    ${missing.length ? `<ul>${missing.map(m => `<li>${m}</li>`).join('')}</ul>` : '<p>全部完成！</p>'}
+    <h3>下一步建議：</h3>
+    <p>${nextStep}</p>
+  `;
+  document.getElementById('reportModal').showModal();
+});
+
+/* ── Slide 6: Client Script ── */
+const clientChecks = document.querySelectorAll('#clientChecklist input[type="checkbox"]');
+const openingText = document.getElementById('openingText');
+
+function updateScript() {
+  const selected = Array.from(clientChecks).filter(c => c.checked).map(c => c.dataset.clientCopy);
+  if (selected.length === 0) {
+    openingText.textContent = '勾選右側項目後，這裡會自動整理成一段可以直接跟客戶確認的話。';
+    openingText.classList.remove('has-content');
+  } else {
+    openingText.textContent = `開工前我們會先確認：${selected.join('、')}。確認完成後，我會依照這份共識進入設計，後續修改與驗收也會以這些條件作為判斷依據。`;
+    openingText.classList.add('has-content');
   }
+}
 
-  function openChecklistModal() {
-    const items = document.querySelectorAll('.check-item');
-    const done = [...items].filter(i => i.classList.contains('checked'));
-    const todo = [...items].filter(i => !i.classList.contains('checked'));
-    const pct = Math.round((done.length / items.length) * 100);
+clientChecks.forEach(cb => cb.addEventListener('change', updateScript));
 
-    document.getElementById('clarity-score').textContent = pct + '%';
-    const labels = ['需求非常模糊，建議先暫停設計', '方向初步確立，尚有空白需補充', '需求已大致清晰', '需求清晰度高，可開始設計', '需求完全對焦，可直接開始！'];
-    document.getElementById('clarity-label').textContent = labels[Math.floor(pct / 25)] || labels[4];
-
-    document.getElementById('modal-done').innerHTML = done.length
-      ? done.map(i => `<span class="modal-tag done">✓ ${checkLabels[i.dataset.id]}</span>`).join('')
-      : '<span class="modal-tag">尚無完成項目</span>';
-
-    document.getElementById('modal-todo').innerHTML = todo.length
-      ? todo.map(i => `<span class="modal-tag todo">○ ${checkLabels[i.dataset.id]}</span>`).join('')
-      : '<span class="modal-tag done">✓ 全部完成！</span>';
-
-    const nexts = [
-      '請先安排需求訪談，補齊所有空白項目再開始設計。',
-      '補齊剩餘項目後，安排一次對焦確認再進入設計。',
-      '可以開始初步設計，但建議先取得書面確認。',
-      '建議發送需求確認書，取得書面同意後開始。',
-      '恭喜！可以正式開始設計了，記得保留書面記錄。'
-    ];
-    document.getElementById('modal-next').textContent = nexts[Math.min(Math.floor(pct / 25), 4)];
-
-    document.getElementById('modal-checklist').classList.add('open');
-  }
-
-  // ── COPY SCRIPT ──
-  function copyScript(id) {
-    const textEl = document.getElementById('script-' + id);
-    const btn = document.getElementById('copy-' + id);
-    navigator.clipboard.writeText(textEl.textContent.trim()).then(() => {
-      btn.textContent = '✓ 已複製';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '📋 複製話術'; btn.classList.remove('copied'); }, 2000);
-    });
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'copy_script', { script_id: id });
-    }
-  }
-
-  // ── CONTRACT MODAL ──
-  function openContractModal() {
-    const client = document.getElementById('f-client').value || '（未填寫）';
-    const project = document.getElementById('f-project').value || '（未填寫）';
-    const timeline = document.getElementById('f-timeline').value || '（未填寫）';
-    const rounds = document.getElementById('f-rounds').value || '（未填寫）';
-    const note = document.getElementById('f-note').value || '無';
-    const scope = document.getElementById('f-scope').checked;
-    const terms = document.getElementById('f-terms').checked;
-
-    const rows = [
-      ['委託方名稱', client],
-      ['專案名稱', project],
-      ['預計時程', timeline],
-      ['修改輪數', rounds],
-      ['備註', note],
-      ['已確認交付範圍', scope ? '✓ 是' : '✗ 否'],
-      ['已同意合作條款', terms ? '✓ 是' : '✗ 否'],
-      ['確認日期', new Date().toLocaleDateString('zh-TW')],
-    ];
-
-    document.getElementById('contract-content').innerHTML = rows.map(([k, v]) =>
-      `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`
-    ).join('');
-
-    document.getElementById('modal-contract').classList.add('open');
-  }
-
-  // ── MODAL CLOSE ──
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-  }
-
-  // Close on overlay click
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) overlay.classList.remove('open');
-    });
+document.querySelector('[data-copy="opening"]').addEventListener('click', function() {
+  const text = openingText.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    this.textContent = '已複製！';
+    setTimeout(() => { this.textContent = '複製文字'; }, 2000);
   });
+  gtag('event', 'copy_script', { script_id: 'opening' });
+});
+
+/* ── Slide 10: Confirm Form ── */
+document.getElementById('confirmForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const client = fd.get('client') || '';
+  const project = fd.get('project') || '';
+  const timeline = fd.get('timeline') || '';
+  const rounds = fd.get('rounds') || '';
+  const notes = fd.get('notes') || '';
+  const scope = !!fd.get('scope');
+  const terms = !!fd.get('terms');
+
+  document.getElementById('confirmModalBody').innerHTML = `
+    <p>委託方名稱：${client || '未填寫'}</p>
+    <p>專案名稱：${project || '未填寫'}</p>
+    <p>預計時程：${timeline || '未填寫'}</p>
+    <p>修改輪數：${rounds || '未填寫'}</p>
+    <p>交付範圍：${scope ? '已確認' : '尚未確認'}</p>
+    <p>合作條款：${terms ? '已同意' : '尚未同意'}</p>
+    <p>備註：${notes || '無'}</p>
+    <p style="margin-top:20px;color:var(--muted);">本摘要可作為正式報價與開工前的合作確認基礎。</p>
+  `;
+  document.getElementById('confirmModal').showModal();
+});
+
+/* ── Modal close buttons ── */
+document.querySelectorAll('.dialog-close').forEach(btn => {
+  btn.addEventListener('click', () => btn.closest('dialog').close());
+});
+
+document.querySelectorAll('dialog').forEach(d => {
+  d.addEventListener('click', e => { if (e.target === d) d.close(); });
+});
 </script>
+
 </body>
 </html>
